@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleshop - Telefon bozor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F0F2F5; /* Oq-kulrang fon */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Vertikal joylashish */
+            align-items: center;
+            padding: 1rem;
+            color: #333;
+        }
+
+        /* Uzum Marketga o'xshash ixcham telefon kartasi */
+        .phone-card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .phone-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .phone-image-container {
+            width: 100%;
+            height: 140px; /* Rasmlar uchun ixcham balandlik */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #F8F9FA;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .phone-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        /* Tugma va kiritish maydoni uchun Telegramga o'xshash stil */
+        .tg-button {
+            background-color: #0088cc;
+            border-radius: 9999px;
+            box-shadow: 0 4px 10px rgba(0, 136, 204, 0.3);
+            transition: all 0.3s ease;
+        }
+        .tg-button:hover {
+            background-color: #006bbd;
+            box-shadow: 0 6px 15px rgba(0, 136, 204, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .tg-input {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+        .tg-input:focus {
+            outline: none;
+            border-color: #0088cc;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.4);
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0088cc;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Yaqin narxlar uchun zamonaviy gradient */
+        .premium-gradient {
+            background: linear-gradient(135deg, #0088cc, #005180);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid #005180;
+            box-shadow: 0 10px 20px rgba(0, 81, 128, 0.3);
+            color: #fff; /* Matnni oq qilish */
+        }
+        .premium-gradient h3, .premium-gradient p, .premium-gradient .text-gray-500 {
+            color: #fff !important;
+        }
+        .text-telegram-blue {
+            color: #0088cc;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Asosiy Kontener -->
+    <div class="max-w-4xl w-full flex flex-col items-center justify-center p-4 sm:p-8">
+        
+        <!-- Sarlavha -->
+        <div class="flex items-center justify-center mb-6">
+            <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-gray-800">Teleshop - Telefon bozor</h1>
+        </div>
+
+        <!-- Kirish matni -->
+        <p class="text-gray-600 text-lg sm:text-xl mb-8 text-center">
+            <span class="font-semibold text-telegram-blue">Teleshop</span> kanalining Budget Botiga xush kelibsiz! Byudjetingizni kiriting va o'zingizga mos telefon toping.
+        </p>
+
+        <!-- Kiritish maydoni -->
+        <div class="relative w-full mb-6">
+            <input type="number" id="budgetInput" placeholder="Byudjetingizni dollarda kiriting" class="tg-input w-full py-4 px-6 text-xl rounded-2xl placeholder-gray-500">
+            <span class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-xl">$</span>
+        </div>
+
+        <!-- Telefon topish tugmasi -->
+        <button id="findButton" class="tg-button w-full py-4 text-xl font-bold text-white rounded-2xl flex items-center justify-center gap-2 mx-auto">
+            <i class="fas fa-search"></i>
+            <span>Telefon Topish</span>
+        </button>
+
+        <!-- Telefon natijalari bo'limi -->
+        <div id="resultsContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 w-full mt-8">
+            <!-- Telefonlar kartalari bu yerga joylashtiriladi -->
+        </div>
+
+        <!-- Ma'lumot bloki -->
+        <div class="bg-gray-100 p-6 mt-10 rounded-2xl text-left shadow-inner w-full">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Budget Bot haqida</h2>
+            <p class="text-gray-600 mb-4">
+                Ushbu bot sizning byudjetingizga mos telefon modellarini topib beradi. Ma'lumotlarimiz doimiy ravishda yangilanib turadi, shu bois siz eng dolzarb narxlarni bilib olishingiz mumkin.
+            </p>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Telefonlarni qayerdan topish mumkin?</h3>
+            <p class="text-gray-600">
+                Bu yerdagi telefon narxlari asosan bozor narxlarida yoziladi, shuning uchun internet do'konlarida narxlar biroz qimmatroq bo'lishi mumkin. Siz ushbu modellarni bizning <a href="https://t.me/teleshopuz" class="text-telegram-blue font-bold hover:underline">Teleshop.uz</a> kanali orqali ham topishingiz mumkin.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Xatolik uchun maxsus modal oyna -->
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full text-center transform scale-90 opacity-0 transition-all duration-300 ease-out">
+            <i class="fas fa-exclamation-circle text-telegram-blue text-4xl mb-4"></i>
+            <p id="errorMessage" class="text-gray-800 text-lg font-semibold mb-4">Xatolik yuz berdi</p>
+            <button id="closeModalButton" class="bg-telegram-blue text-white font-bold px-6 py-2 rounded-full transition-colors duration-200 hover:bg-blue-600">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Telefonlar ma'lumotlari massivi
+        const phones = [
+            // Siz bergan URL havola asosida rasmlarni bog'lash uchun, bu yerda telefonlar ma'lumotlari mavjud.
+            // Bu yerga o'zingizning havolalaringizni qo'shishingiz yoki o'zgartirishingiz mumkin.
+            { id: 1, name: 'iPhone 5S', brand: 'iPhone', price: 60, image: 'https://i.postimg.cc/QVLH9kSr/image.png' },
+            { id: 2, name: 'iPhone 6', brand: 'iPhone', price: 80, image: 'https://i.postimg.cc/mZqSTvY0/image.png' },
+            { id: 3, name: 'iPhone 6 Plus', brand: 'iPhone', price: 90, image: 'https://i.postimg.cc/bJrQhgsy/image.png' },
+            { id: 4, name: 'iPhone SE (1-gen)', brand: 'iPhone', price: 110, image: 'https://i.postimg.cc/8chdK57M/image.png' },
+            { id: 5, name: 'iPhone 7', brand: 'iPhone', price: 110, image: 'https://i.postimg.cc/xjHPTs68/image.png' },
+            { id: 6, name: 'iPhone 7 Plus', brand: 'iPhone', price: 125, image: 'https://i.postimg.cc/cJ2QdYYf/image.png' },
+            { id: 7, name: 'iPhone 8', brand: 'iPhone', price: 135, image: 'https://i.postimg.cc/fRbXX5fx/image.png' },
+            { id: 8, name: 'iPhone 8 Plus', brand: 'iPhone', price: 140, image: 'https://i.postimg.cc/2yf98gvd/image.png' },
+            { id: 9, name: 'iPhone X', brand: 'iPhone', price: 170, image: 'https://i.postimg.cc/SR7TXV7B/image.png' },
+            { id: 10, name: 'iPhone XR', brand: 'iPhone', price: 180, image: 'https://i.postimg.cc/Dy6pnjzs/image.png' },
+            { id: 11, name: 'iPhone XS', brand: 'iPhone', price: 185, image: 'https://i.postimg.cc/2ywGjyCm/image.png' },
+            { id: 12, name: 'iPhone XS Max', brand: 'iPhone', price: 200, image: 'https://i.postimg.cc/XvSCh30g/image.png' },
+            { id: 13, name: 'iPhone 11', brand: 'iPhone', price: 220, image: 'https://i.postimg.cc/nhvzXD6v/image.png' },
+            { id: 14, name: 'iPhone 11 Pro', brand: 'iPhone', price: 230, image: 'https://i.postimg.cc/yxM1d1jQ/image.png' },
+            { id: 15, name: 'iPhone 11 Pro Max', brand: 'iPhone', price: 260, image: 'https://i.postimg.cc/2S25dDS6/image.png'},
+            { id: 16, name: 'iPhone SE (2020)', brand: 'iPhone', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 17, name: 'iPhone 12', brand: 'iPhone', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 18, name: 'iPhone 12 Mini', brand: 'iPhone', price: 240, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 19, name: 'iPhone 12 Pro', brand: 'iPhone', price: 280, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 20, name: 'iPhone 12 Pro Max', brand: 'iPhone', price: 320, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 21, name: 'iPhone 13', brand: 'iPhone', price: 300, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 22, name: 'iPhone 13 Mini', brand: 'iPhone', price: 290, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 23, name: 'iPhone 13 Pro', brand: 'iPhone', price: 380, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 24, name: 'iPhone 13 Pro Max', brand: 'iPhone', price: 430, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 25, name: 'iPhone SE (2022)', brand: 'iPhone', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 26, name: 'iPhone 14', brand: 'iPhone', price: 440, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 27, name: 'iPhone 14 Plus', brand: 'iPhone', price: 455, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 28, name: 'iPhone 14 Pro', brand: 'iPhone', price: 530, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 29, name: 'iPhone 14 Pro Max', brand: 'iPhone', price: 620, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 30, name: 'iPhone 15', brand: 'iPhone', price: 580, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 31, name: 'iPhone 15 Plus', brand: 'iPhone', price: 650, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 32, name: 'iPhone 15 Pro', brand: 'iPhone', price: 780, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 33, name: 'iPhone 15 Pro Max', brand: 'iPhone', price: 850, image: 'https://postimg.cc/SYryH9wZ' },
+            // Bu yerda mavjud bo'lmagan modellar uchun taxminiy narxlar va joylashtirgichlar
+            { id: 34, name: 'iPhone 16', brand: 'iPhone', price: 820, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 35, name: 'iPhone 16 Pro', brand: 'iPhone', price: 890, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 36, name: 'iPhone 17', brand: 'iPhone', price: 1050, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 37, name: 'iPhone 17 Pro', brand: 'iPhone', price: 1300, image: 'https://postimg.cc/SYryH9wZ' },
+            
+            // Samsung S va A seriyasi
+            { id: 38, name: 'Samsung Galaxy S9', brand: 'Samsung', price: 200, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 39, name: 'Samsung Galaxy S10', brand: 'Samsung', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 40, name: 'Samsung Galaxy S20 FE', brand: 'Samsung', price: 380, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 41, name: 'Samsung Galaxy S21', brand: 'Samsung', price: 500, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 42, name: 'Samsung Galaxy S21 FE', brand: 'Samsung', price: 450, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 43, name: 'Samsung Galaxy S22', brand: 'Samsung', price: 600, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 44, name: 'Samsung Galaxy S22 Ultra', brand: 'Samsung', price: 650, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 45, name: 'Samsung Galaxy S23', brand: 'Samsung', price: 700, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 46, name: 'Samsung Galaxy S23 FE', brand: 'Samsung', price: 550, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 47, name: 'Samsung Galaxy S23 Ultra', brand: 'Samsung', price: 850, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 48, name: 'Samsung Galaxy S24', brand: 'Samsung', price: 800, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 49, name: 'Samsung Galaxy S24 Ultra', brand: 'Samsung', price: 1250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 50, name: 'Samsung Galaxy A03', brand: 'Samsung', price: 90, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 51, name: 'Samsung Galaxy A04', brand: 'Samsung', price: 100, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 52, name: 'Samsung Galaxy A05s', brand: 'Samsung', price: 120, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 53, name: 'Samsung Galaxy A13', brand: 'Samsung', price: 130, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 54, name: 'Samsung Galaxy A14', brand: 'Samsung', price: 150, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 55, name: 'Samsung Galaxy A22', brand: 'Samsung', price: 180, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 56, name: 'Samsung Galaxy A23', brand: 'Samsung', price: 200, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 57, name: 'Samsung Galaxy A24', brand: 'Samsung', price: 200, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 58, name: 'Samsung Galaxy A32', brand: 'Samsung', price: 220, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 59, name: 'Samsung Galaxy A33', brand: 'Samsung', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 60, name: 'Samsung Galaxy A34', brand: 'Samsung', price: 280, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 61, name: 'Samsung Galaxy A51', brand: 'Samsung', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 62, name: 'Samsung Galaxy A52', brand: 'Samsung', price: 300, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 63, name: 'Samsung Galaxy A53', brand: 'Samsung', price: 320, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 64, name: 'Samsung Galaxy A54', brand: 'Samsung', price: 350, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 65, name: 'Samsung Galaxy A71', brand: 'Samsung', price: 300, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 66, name: 'Samsung Galaxy A73', brand: 'Samsung', price: 400, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 67, name: 'Samsung Galaxy Z Flip 5', brand: 'Samsung', price: 900, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 68, name: 'Samsung Galaxy Z Fold 5', brand: 'Samsung', price: 1500, image: 'https://postimg.cc/SYryH9wZ' },
+
+            // Redmi telefonlari
+            { id: 69, name: 'Redmi 9A', brand: 'Redmi', price: 90, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 70, name: 'Redmi 10', brand: 'Redmi', price: 110, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 71, name: 'Redmi 12C', brand: 'Redmi', price: 130, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 72, name: 'Redmi 13C', brand: 'Redmi', price: 140, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 73, name: 'Redmi 12', brand: 'Redmi', price: 170, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 74, name: 'Redmi 13', brand: 'Redmi', price: 190, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 75, name: 'Redmi Note 9', brand: 'Redmi', price: 140, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 76, name: 'Redmi Note 10', brand: 'Redmi', price: 150, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 77, name: 'Redmi Note 10 Pro', brand: 'Redmi', price: 210, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 78, name: 'Redmi Note 11', brand: 'Redmi', price: 160, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 79, name: 'Redmi Note 11 Pro', brand: 'Redmi', price: 230, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 80, name: 'Redmi Note 12', brand: 'Redmi', price: 180, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 81, name: 'Redmi Note 12S', brand: 'Redmi', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 82, name: 'Redmi Note 13', brand: 'Redmi', price: 220, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 83, name: 'Redmi Note 13 Pro', brand: 'Redmi', price: 300, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 84, name: 'Redmi Note 13 Pro+', brand: 'Redmi', price: 380, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 85, name: 'Redmi K40 Gaming', brand: 'Redmi', price: 400, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 86, name: 'Redmi K50 Gaming', brand: 'Redmi', price: 500, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 87, name: 'Redmi K60', brand: 'Redmi', price: 450, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 88, name: 'Redmi K70', brand: 'Redmi', price: 550, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 89, name: 'Redmi K70 Pro', brand: 'Redmi', price: 650, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 90, name: 'Redmi Note 8', brand: 'Redmi', price: 120, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 91, name: 'Redmi Note 7', brand: 'Redmi', price: 110, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 92, name: 'Redmi 9', brand: 'Redmi', price: 100, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 93, name: 'Redmi 8', brand: 'Redmi', price: 80, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 94, name: 'Redmi Note 11S', brand: 'Redmi', price: 200, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 95, name: 'Redmi Note 12 Pro', brand: 'Redmi', price: 250, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 96, name: 'Redmi K40S', brand: 'Redmi', price: 350, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 97, name: 'Redmi Note 10 5G', brand: 'Redmi', price: 180, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 98, name: 'Redmi Note 9 Pro', brand: 'Redmi', price: 170, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 99, name: 'Redmi K20 Pro', brand: 'Redmi', price: 280, image: 'https://postimg.cc/SYryH9wZ' },
+            { id: 100, name: 'Redmi Note 12 Pro+', brand: 'Redmi', price: 300, image: 'https://postimg.cc/SYryH9wZ' },
+        ];
+
+        // UI elementlariga murojaatlar
+        const budgetInput = document.getElementById('budgetInput');
+        const findButton = document.getElementById('findButton');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const errorModal = document.getElementById('errorModal');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeModalButton = document.getElementById('closeModalButton');
+
+        // Maxsus modalni ko'rsatish funksiyasi
+        function showModal(message) {
+            errorMessage.textContent = message;
+            errorModal.classList.remove('hidden');
+            setTimeout(() => {
+                errorModal.querySelector('div').classList.remove('scale-90', 'opacity-0');
+            }, 50);
+        }
+
+        // Maxsus modalni yopish funksiyasi
+        closeModalButton.addEventListener('click', () => {
+            errorModal.querySelector('div').classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                errorModal.classList.add('hidden');
+            }, 300);
+        });
+        
+        // Kartaning stilini aniqlash funksiyasi
+        function getCardStyle(budget, price) {
+            const diff = Math.abs(budget - price);
+            // $50 farq ichidagi telefonlar uchun premium gradientni qaytaradi
+            if (diff <= 50) {
+                return 'premium-gradient';
+            }
+            return '';
+        }
+
+        // "Telefon Topish" tugmasini bosish uchun tinglovchi
+        findButton.addEventListener('click', () => {
+            const budget = parseInt(budgetInput.value);
+
+            if (isNaN(budget) || budget <= 0) {
+                showModal("Iltimos, byudjetingizni musbat raqamda kiriting.");
+                return;
+            }
+
+            findButton.disabled = true;
+            findButton.innerHTML = `<div class="loader"></div>`;
+            resultsContainer.innerHTML = '';
+
+            setTimeout(() => {
+                // Byudjetga mos telefonlarni topish
+                const filteredPhones = phones.filter(phone => phone.price <= budget);
+                
+                // Telefonlarni narxi bo'yicha kamayish tartibida saralash
+                filteredPhones.sort((a, b) => b.price - a.price);
+
+                findButton.disabled = false;
+                findButton.innerHTML = `<i class="fas fa-search"></i><span>Telefon Topish</span>`;
+
+                if (filteredPhones.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <p class="text-xl text-gray-500 text-center w-full col-span-2 sm:col-span-3 lg:col-span-4 mt-4">
+                            Ushbu byudjetga mos telefon topilmadi.
+                        </p>
+                    `;
+                } else {
+                    filteredPhones.forEach((phone, index) => {
+                        const cardStyle = getCardStyle(budget, phone.price);
+                        
+                        const cardHtml = `
+                            <div class="phone-card ${cardStyle}" style="animation-delay: ${index * 0.05}s;">
+                                <div class="phone-image-container">
+                                    <img src="${phone.image}" 
+                                         alt="${phone.name}" 
+                                         class="phone-image"
+                                         crossorigin="anonymous"
+                                         onerror="this.onerror=null; this.src='https://placehold.co/800x600/e5e7eb/333333?text=Telefon'; this.alt='Rasm yuklanmadi';"
+                                    >
+                                </div>
+                                <div class="p-3 sm:p-4 flex-grow text-left">
+                                    <h3 class="text-base sm:text-lg font-semibold mb-1 truncate">${phone.name}</h3>
+                                    <p class="text-gray-500 text-xs sm:text-sm mb-1">${phone.brand}</p>
+                                    <p class="text-lg sm:text-xl font-bold ${cardStyle ? 'text-white' : 'text-telegram-blue'}">$${phone.price}</p>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.innerHTML += cardHtml;
+                    });
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
